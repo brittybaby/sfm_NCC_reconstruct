@@ -19,9 +19,8 @@ MainWindow::MainWindow(QWidget *parent) :
     std::ofstream FileWrite;
     cv::namedWindow("previous image");
     cv::namedWindow("previous image with flow");
-    cv::namedWindow("merged image");
+    cv::namedWindow("current image");
     cv::Mat drawingPrv, drawingCurr;
-    vector<Mat> merged_image;
     vector<Point2f> points[2];
     vector<uint> point_status;
     vector<Point2f> points_tracked;
@@ -48,7 +47,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     m_videoHandle >> m_currentFrame;
-    cv::resize(m_currentFrame, m_currentFrame, Size(305,224));
     m_FrameHeight = m_currentFrame.rows;
     m_FrameWidth = m_currentFrame.cols;
 
@@ -61,8 +59,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
         m_currentFrame.copyTo(m_previousFrame);
         m_videoHandle >> m_currentFrame;
-
-        cv::resize(m_currentFrame, m_currentFrame, Size(305,224));
         if(m_currentFrame.empty())
             break;
         m_previousFrame.copyTo(drawingPrv);
@@ -303,7 +299,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 
-        merged_image.push_back(m_previousFrame);
 
         npts = points[1].size();
         x1 = Mat_<double>(2, npts);
@@ -354,7 +349,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         cv::imshow("previous image", m_previousFrame);
         cv::imshow("previous image with flow", drawingPrv);
- //       cv::imshow("current image", drawingCurr);
+        cv::imshow("current image", drawingCurr);
 
 
 //        std::ostringstream name;
@@ -375,7 +370,6 @@ MainWindow::MainWindow(QWidget *parent) :
 //                                    0, 500, 240,
 //                                    0, 0,  1);
 
-            //cv::imshow("merged image", merged_image);
             vector<Mat> Rs_est, ts_est, points3d_estimated;
             sfm::reconstruct(points2d, Rs_est, ts_est, K_in, points3d_estimated, is_projective);
             //sfm::reconstruct(points2d, Rs_est, ts_est, K_in, points3d_estimated, is_projective);
@@ -389,8 +383,6 @@ MainWindow::MainWindow(QWidget *parent) :
             cout << "Refined intrinsics: " << endl << K_in << endl << endl;
             cout << "3D Visualization: " << endl;
             cout << "============================" << endl;
-
-
 
 
             /// Create 3D windows
